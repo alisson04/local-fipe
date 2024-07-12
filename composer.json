@@ -1,0 +1,15 @@
+{
+    "name": "alisson04/local-fipe",
+    "authors": [
+        {
+            "name": "Alisson Fernandes",
+            "email": "alissonvinicios04@gmail.com"
+        }
+    ],
+    "require": {},
+    "autoload": {
+        "psr-4": {
+            "Database\\": "database/"
+        }
+    }
+}
