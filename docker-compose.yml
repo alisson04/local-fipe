@@ -12,9 +12,9 @@ services:
   db:
     image: mysql:latest
     environment:
-      - MYSQL_DATEBASE=xxxx
-      - MYSQL_USER=xxxx
-      - MYSQL_PASSWORD=xxxx
+      - MYSQL_DATEBASE=fipe
+      - MYSQL_USER=user_name
+      - MYSQL_PASSWORD=pass
       - MYSQL_ALLOW_EMPTY_PASSWORD=1
     volumes:
       - "./database/backup:/docker-entrypoint-initdb.d"
