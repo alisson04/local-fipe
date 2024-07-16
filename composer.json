@@ -6,10 +6,13 @@
             "email": "alissonvinicios04@gmail.com"
         }
     ],
-    "require": {},
+    "require": {
+        "guzzlehttp/guzzle": "*"
+    },
     "autoload": {
         "psr-4": {
-            "Database\\": "database/"
+            "Database\\": "database/",
+            "Src\\": "src/"
         }
     }
 }
