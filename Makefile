@@ -29,3 +29,6 @@ composer-dump:
 
 composer-require:
 	docker compose exec $(PHP_SERVICE) composer require $(package)
+
+composer-show:
+	docker compose exec $(PHP_SERVICE) composer show $(package)
