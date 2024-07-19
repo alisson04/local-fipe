@@ -7,7 +7,9 @@
         }
     ],
     "require": {
-        "guzzlehttp/guzzle": "*"
+        "guzzlehttp/guzzle": "*",
+        "illuminate/database": "^11.16",
+        "vlucas/phpdotenv": "^5.6"
     },
     "autoload": {
         "psr-4": {
