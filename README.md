@@ -10,3 +10,119 @@
 2. Montar um ambiente Docker para acesso aos dados.
 3. Montar uma base de dados com as mesmas informações do site.
 4. Disponibilizar esses dados como backup dentro do repositório.
+
+## Tabela com rodas usadas para buscar os dados
+* Rota principal: https://veiculos.fipe.org.br/api/veiculos;
+
+<table>
+    <tr>
+        <td>Passo</td>
+        <td>Rota</td>
+        <td>Tipo</td>
+    </tr>
+    <tr>
+        <td>1</td>
+        <td>/ConsultarTabelaDeReferencia</td>
+        <td>POST</td>
+    </tr>
+    <tr>
+        <td>2</td>
+        <td>/ConsultarMarcas</td>
+        <td>POST</td>
+    </tr>
+    <tr>
+        <td>3</td>
+        <td>/ConsultarModelos</td>
+        <td>POST</td>
+    </tr>
+    </tr>
+        <td>4</td>
+        <td>/ConsultarAnoModelo</td>
+        <td>POST</td>
+    </tr>
+    </tr>
+        <td>5</td>
+        <td>/ConsultarModelosAtravesDoAno</td>
+        <td>POST</td>
+    </tr>
+    </tr>
+        <td>6</td>
+        <td>/ConsultarValorComTodosParametros</td>
+        <td>POST</td>
+    </tr>
+</table>
+
+## Rotas e resultados
+### Passo 1 - /ConsultarTabelaDeReferencia
+```json
+[
+    {
+        "Codigo": 311,
+        "Mes": "julho/2024 "
+    },
+    {...}
+]
+```
+
+### Passo 2 - /ConsultarMarcas
+```json
+[
+    {
+        "Label": "HONDA",
+        "Value": "80"
+    },
+    {...}
+]
+```
+
+### Passo 3 - /ConsultarModelos
+```json
+{
+    "Modelos": [
+        {
+            "Label": "ADV 150",
+            "Value": 9265
+        },
+        {...}
+    ]
+}
+```
+
+### Passo 4 - /ConsultarAnoModelo
+```json
+[
+    {
+        "Label": "2015",
+        "Value": "2015-1"
+    },
+    {...}
+]
+```
+
+### Passo 5 - /ConsultarModelosAtravesDoAno
+```json
+[
+    {
+        "Label": "BIZ 125 ES/ ES F.INJ./ES MIX F.INJECTION",
+        "Value": "3841"
+    },
+    {...}
+]
+```
+
+### Passo 6 - /ConsultarValorComTodosParametros
+```json
+{
+    "Valor": "R$ 8.957,00",
+    "Marca": "HONDA",
+    "Modelo": "CG 150 CARGO ESD FLEX",
+    "AnoModelo": 2014,
+    "Combustivel": "Gasolina",
+    "CodigoFipe": "811123-5",
+    "MesReferencia": "julho de 2024 ",
+    "Autenticacao": "cd6kfps5tj1q",
+    "TipoVeiculo": 2,
+    "SiglaCombustivel": "G",
+    "DataConsulta": "sábado, 20 de julho de 2024 12:42"
+}
+```
