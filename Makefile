@@ -17,6 +17,9 @@ build:
 	docker compose build $(PHP_SERVICE)
 	make up
 
+bash:
+	docker compose exec $(PHP_SERVICE) bash
+
 #Composer Commands
 composer-install:
 	docker compose exec $(PHP_SERVICE) sh -c "composer install"
