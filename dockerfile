@@ -1,14 +1,13 @@
 FROM php:apache
 
-# Mysqli extension
-RUN docker-php-ext-install mysqli
-
 # Instale as dependências necessárias
 RUN apt-get update && apt-get install -y \
+    libpng-dev libmariadb-dev-compat libmariadb-dev libfreetype6-dev \
     git \
     libzip-dev \
     unzip \
-    && docker-php-ext-install zip
+    && docker-php-ext-install zip gd pdo pdo_mysql \
+    && rm -rf /var/lib/apt/lists/*
 
 # Instala o Composer
 #COPY --from=composer:latest /usr/bin/composer /usr/bin/composer

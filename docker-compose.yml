@@ -12,12 +12,14 @@ services:
   db:
     image: mysql:latest
     environment:
-      - MYSQL_DATEBASE=fipe
-      - MYSQL_USER=user_name
-      - MYSQL_PASSWORD=pass
+      - MYSQL_DATEBASE=${DB_DATABASE}
+      - MYSQL_USER=${DB_USERNAME}
+      - MYSQL_PASSWORD=${DB_PASSWORD}
       - MYSQL_ALLOW_EMPTY_PASSWORD=1
     volumes:
-      - "./database/backup:/docker-entrypoint-initdb.d"
+      - ./database/db:/var/lib/mysql
+    ports:
+      - "${DB_PORT}:${DB_PORT}"
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
     ports:
