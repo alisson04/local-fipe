@@ -15,13 +15,13 @@ class ResponseProvider
         $jsonFilePath = $array[$route];
 
         if (file_exists($jsonFilePath)) {
-            return $this->getDataFromJsonFile();
+            return $this->getDataFromJsonFile($jsonFilePath);
         }
 
-        return $this->getDataFromFipeApi();        
+        return $this->getDataFromFipeApi($jsonFilePath);
     }
 
-    private function saveDataInJsonFile(array $content, string $jsonFilePath): void
+    private function saveDataInJsonFile(string $content, string $jsonFilePath): void
     {
         $jsonFilePath = explode('/', $jsonFilePath);
         $fileName = array_pop($jsonFilePath);
@@ -40,18 +40,24 @@ class ResponseProvider
     {
         $fipeApi = new FipeApi();
         $content = $fipeApi->getReferenceTables();
+        $this->saveDataInJsonFile($content, $jsonFilePath);
+        
+        return json_decode($content, true);
     }
 
     private function getDataFromJsonFile(string $jsonFilePath): array
     {
         $jsonContents = file_get_contents($jsonFilePath);
+        return $this->getDataFromJson($jsonContents);
+    }
 
-        $data = json_decode($jsonContents, true);
+    private function getDataFromJson(string $json): array
+    {
+        $data = json_decode($json, true);
 
         if (json_last_error() === JSON_ERROR_NONE) {
             echo "JSON data successfully decoded.\n";
         } else {
-            // Error in decoding JSON data
             echo "Error decoding JSON data: " . json_last_error_msg() . "\n";
         }
 
