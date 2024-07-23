@@ -17,7 +17,7 @@ services:
       - MYSQL_PASSWORD=${DB_PASSWORD}
       - MYSQL_ALLOW_EMPTY_PASSWORD=1
     volumes:
-      - ./database/db:/var/lib/mysql
+      - ./docker/db:/var/lib/mysql
     ports:
       - "${DB_PORT}:${DB_PORT}"
   phpmyadmin:
