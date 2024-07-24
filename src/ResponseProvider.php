@@ -6,19 +6,42 @@ use Src\FipeApi;
 
 class ResponseProvider
 {
-    public function run(string $route): array
+    const URI_REFERENCE_TABLES = 'ConsultarTabelaDeReferencia';
+    const URI_BRANDS = 'ConsultarMarcas';
+    const URI_MODELS = 'ConsultarModelos';
+    const URI_YEAR_MODEL = 'ConsultarAnoModelo';
+    const URI_MODELS_BY_YEAR = 'ConsultarModelosAtravesDoAno';
+    const URI_PRICE = 'ConsultarValorComTodosParametros';
+    
+    public function run(string $route, array $formParams = []): array
     {
         $array = [
-            'ConsultarTabelaDeReferencia' => 'responses/references/references.json',
+            self::URI_REFERENCE_TABLES => 'responses/references/',
+            self::URI_BRANDS => 'responses/brands/',
         ];
 
-        $jsonFilePath = $array[$route];
+        $jsonFilePath = $array[$route] . $this->generateFileName($formParams);;
 
         if (file_exists($jsonFilePath)) {
             return $this->getDataFromJsonFile($jsonFilePath);
         }
 
-        return $this->getDataFromFipeApi($jsonFilePath);
+        return $this->getDataFromFipeApi($route, $formParams, $jsonFilePath);
+    }
+
+    private function generateFileName(array $formParams): string
+    {
+        if (empty($formParams)) {
+            return 'references.json';
+        }
+
+        $fileName = '';
+
+        foreach ($formParams as $key => $value) {
+            $fileName .= strtolower("_{$key}_{$value}");
+        }
+
+        return substr($fileName, 1) . '.json';
     }
 
     private function saveDataInJsonFile(string $content, string $jsonFilePath): void
@@ -36,10 +59,10 @@ class ResponseProvider
         }
     }
 
-    private function getDataFromFipeApi(string $jsonFilePath): array
+    private function getDataFromFipeApi(string $route, array $formParams, string $jsonFilePath): array
     {
         $fipeApi = new FipeApi();
-        $content = $fipeApi->getReferenceTables();
+        $content = $fipeApi->post($route, $formParams);
         $this->saveDataInJsonFile($content, $jsonFilePath);
         
         return json_decode($content, true);
