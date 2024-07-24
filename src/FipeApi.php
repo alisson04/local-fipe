@@ -18,19 +18,14 @@ class FipeApi
 
     public function __construct()
     {
-        $this->client = new Client(['base_uri' => self::URI_BASE]);
+        $this->client = new Client(['base_uri' => 'https://veiculos.fipe.org.br/api/veiculos/']);
     }
 
-    public function getReferenceTables()
+    public function post(string $uri, array $formParams = []): string
     {
-        return $this->get(self::URI_REFERENCE_TABLES);
-    }
-
-    public function get(string $uri): array
-    {
-        $body = ['headers' => ['Content-Type' => 'application/json']];
+        $body = ['headers' => ['Content-Type' => 'application/json'], 'json' => $formParams];
         $response = $this->client->request('POST', $uri, $body);
-        
-        return json_decode($response->getBody(), true);
+
+        return $response->getBody()->getContents();
     }
 }
