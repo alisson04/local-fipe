@@ -44,9 +44,7 @@ class ResponseJsonFileManager
     {
         $data = json_decode($json, true);
 
-        if (json_last_error() === JSON_ERROR_NONE) {
-            echo "JSON data successfully decoded.\n";
-        } else {
+        if (json_last_error() !== JSON_ERROR_NONE) {
             echo "Error decoding JSON data: " . json_last_error_msg() . "\n";
         }
 
