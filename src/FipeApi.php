@@ -23,6 +23,7 @@ class FipeApi
 
     public function post(string $uri, array $formParams = []): string
     {
+        sleep(2);
         $body = ['headers' => ['Content-Type' => 'application/json'], 'json' => $formParams];
         $response = $this->client->request('POST', $uri, $body);
 
