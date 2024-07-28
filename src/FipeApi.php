@@ -14,10 +14,16 @@ class FipeApi
     const URI_MODELS_BY_YEAR = 'ConsultarModelosAtravesDoAno';
     const URI_PRICE = 'ConsultarValorComTodosParametros';
 
-    protected Client $client;
+    const VEHICLE_TYPE_CAR = 1;
+    const VEHICLE_TYPE_MOTORCYCLE = 2;
+    const VEHICLE_TYPE_TRUCK = 3;
 
-    public function __construct()
+    private Client $client;
+    private array $defaultFormParams;
+
+    public function __construct(int $vehicleTypeId, int $referenceId)
     {
+        $this->defaultFormParams = [];
         $this->client = new Client(['base_uri' => 'https://veiculos.fipe.org.br/api/veiculos/']);
     }
 
@@ -28,5 +34,25 @@ class FipeApi
         $response = $this->client->request('POST', $uri, $body);
 
         return $response->getBody()->getContents();
+    }
+
+    public function setReference(int $referenceId): void
+    {
+        $this->defaultFormParams['codigoTabelaReferencia'] = $referenceId;
+    }
+
+    public function setVehicleTypeMotorcycle(): void
+    {
+        $this->defaultFormParams['codigoTipoVeiculo'] = self::VEHICLE_TYPE_MOTORCYCLE;
+    }
+
+    public function setVehicleTypeCar(): void
+    {
+        $this->defaultFormParams['codigoTipoVeiculo'] = self::VEHICLE_TYPE_CAR;
+    }
+
+    public function setVehicleTypeTruck(): void
+    {
+        $this->defaultFormParams['codigoTipoVeiculo'] = self::VEHICLE_TYPE_TRUCK;
     }
 }
