@@ -21,7 +21,7 @@ class FipeApi
     private Client $client;
     private array $defaultFormParams;
 
-    public function __construct(int $vehicleTypeId, int $referenceId)
+    public function __construct()
     {
         $this->defaultFormParams = [];
         $this->client = new Client(['base_uri' => 'https://veiculos.fipe.org.br/api/veiculos/']);
