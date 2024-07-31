@@ -1,5 +1,9 @@
 PHP_SERVICE=www
 
+#Run Commands
+update-file-responses:
+	docker compose exec $(PHP_SERVICE) php -f updateFileResponses.php
+
 #Docker Compose Commands
 up:
 	docker compose up -d
