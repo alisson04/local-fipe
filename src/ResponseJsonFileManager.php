@@ -19,6 +19,17 @@ class ResponseJsonFileManager
         return substr($fileName, 1) . '.json';
     }
 
+    public function generateFilePath(string $route, array $formParams = []): string
+    {
+        $filePath = "responses/" . strtolower($route) . "/";
+
+        foreach ($formParams as $key => $value) {
+            $filePath .= strtolower("{$key}{$value}/");
+        }
+
+        return $filePath . $this->generateFileName($formParams);
+    }
+
     public function saveDataInJsonFile(string $content, string $jsonFilePath): void
     {
         $jsonFilePath = explode('/', $jsonFilePath);

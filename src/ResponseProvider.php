@@ -7,34 +7,24 @@ use Src\ResponseJsonFileManager;
 
 class ResponseProvider
 {
-    const URI_REFERENCE_TABLES = 'ConsultarTabelaDeReferencia';
-    const URI_BRANDS = 'ConsultarMarcas';
-    const URI_MODELS = 'ConsultarModelos';
-    const URI_YEAR_MODEL = 'ConsultarAnoModelo';
-    const URI_MODELS_BY_YEAR = 'ConsultarModelosAtravesDoAno';
-    const URI_PRICE = 'ConsultarValorComTodosParametros';
-
     private $fipeApi;
     private $responseJsonFileManager;
 
     public function __construct() {
-        $this->fipeApi = new FipeApi();
+        $this->fipeApi = new FipeApi(0,0);
         $this->responseJsonFileManager = new ResponseJsonFileManager();
     }
     
     public function run(string $route, array $formParams = []): array
     {
-        $array = [
-            self::URI_REFERENCE_TABLES => 'responses/references/',
-            self::URI_BRANDS => 'responses/brands/',
-        ];
-
-        $jsonFilePath = $array[$route] . $this->responseJsonFileManager->generateFileName($formParams);;
+        $jsonFilePath = $this->responseJsonFileManager->generateFilePath($route, $formParams);
 
         if (file_exists($jsonFilePath)) {
+            echo "File already exists: {$jsonFilePath} \n";
             return $this->responseJsonFileManager->getDataFromJsonFile($jsonFilePath);
         }
 
+        echo "File don't exists: {$jsonFilePath} \n";
         return $this->getDataFromFipeApi($route, $formParams, $jsonFilePath);
     }
 
