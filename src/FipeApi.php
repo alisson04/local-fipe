@@ -29,11 +29,29 @@ class FipeApi
 
     public function post(string $uri, array $formParams = []): string
     {
-        sleep(2);
+        sleep(1);
         $body = ['headers' => ['Content-Type' => 'application/json'], 'json' => $formParams];
-        $response = $this->client->request('POST', $uri, $body);
+        $content = $this->client->request('POST', $uri, $body)->getBody()->getContents();
+        $data = $this->getDataFromJson($content);
 
-        return $response->getBody()->getContents();
+        if (isset($data['erro'])) {
+            echo 'ERROR: ' . $data['erro'] . " - Wrong parameters problably\n";
+            die();
+        }
+
+        return $content;
+    }
+
+    private function getDataFromJson(string $json): array
+    {
+        $data = json_decode($json, true);
+
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            echo "Error decoding JSON data: " . json_last_error_msg() . "\n";
+            die();
+        }
+
+        return $data;
     }
 
     public function setReference(int $referenceId): void
