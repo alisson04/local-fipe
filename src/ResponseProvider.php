@@ -20,11 +20,9 @@ class ResponseProvider
         $jsonFilePath = $this->responseJsonFileManager->generateFilePath($route, $formParams);
 
         if (file_exists($jsonFilePath)) {
-            echo "File already exists: {$jsonFilePath} \n";
             return $this->responseJsonFileManager->getDataFromJsonFile($jsonFilePath);
         }
 
-        echo "File don't exists: {$jsonFilePath} \n";
         return $this->getDataFromFipeApi($route, $formParams, $jsonFilePath);
     }
 
