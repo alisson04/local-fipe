@@ -2,7 +2,7 @@ PHP_SERVICE=www
 
 #Run Commands
 update-file-responses:
-	docker compose exec $(PHP_SERVICE) php -f updateFileResponses.php
+	docker compose exec $(PHP_SERVICE) php -d memory_limit=500M -f updateFileResponses.php
 
 #Docker Compose Commands
 up:
