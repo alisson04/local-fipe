@@ -3,14 +3,15 @@
 namespace Src;
 
 use Src\FipeApi;
-use GuzzleHttp\Exception\ConnectException;
 
 class ResponseCascadeUpdater
 {
     private $responseProvider;
+    private array $requestParams;
 
     public function __construct() {
         $this->responseProvider = new ResponseProvider();
+        $this->requestParams = [];
     }
 
     public function run(): void
@@ -20,25 +21,45 @@ class ResponseCascadeUpdater
 
         try {
             foreach ($references as $reference) {
-                $referenceId = $reference['Codigo'];
+                $this->requestParams['codigoTabelaReferencia'] = $reference['Codigo'];
 
                 foreach ($vehicleTypes as $vehicleType) {
-                    $params = ['codigoTabelaReferencia' => $referenceId, 'codigoTipoVeiculo' => $vehicleType];
-                    $brands = $this->responseProvider->run('ConsultarMarcas', $params);
-
-                    foreach ($brands as $brand) {
-                        $brandId = $brand['Value'];
-
-                        $params['codigoMarca'] = $brandId;
-                        $brands = $this->responseProvider->run('ConsultarModelos', $params);
-                    }
+                    $this->requestParams['codigoTipoVeiculo'] = $vehicleType;
+                    $this->updateBrands();
                 }
             }
-        } catch (\ConnectException $e) {
+        } catch (\Exception $e) {
             echo $e->getMessage() . "\n";
-            echo "Retrying in 5 seconds...\n";
-            sleep(5);
+            echo "Retrying in 2 seconds...\n";
+            sleep(2);
             $this->run();
         }
+
+        echo "Done!\n";
+    }
+
+    private function updateBrands(): void
+    {
+        $brands = $this->responseProvider->run('ConsultarMarcas', $this->requestParams);
+
+        foreach ($brands as $brand) {
+            $this->requestParams['codigoMarca'] = $brand['Value'];
+            $this->updateModels();
+        }
+    }
+
+    private function updateModels(): void
+    {        
+        $models = $this->responseProvider->run('ConsultarModelos', $this->requestParams);
+        
+        foreach ($models['Modelos'] as $model) {
+            $this->requestParams['codigoModelo'] = $model['Value'];
+            $this->updateYearModels();
+        }
+    }
+
+    private function updateYearModels(): void
+    {
+        $this->responseProvider->run('ConsultarAnoModelo', $this->requestParams);
     }
 }
