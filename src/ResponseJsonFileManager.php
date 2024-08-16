@@ -38,10 +38,9 @@ class ResponseJsonFileManager
 
         $this->createPathIfNecessary($jsonFilePath);
 
-        if (file_put_contents("{$jsonFilePath}/{$fileName}", $content)) {
-            echo "A resposta foi salva em $jsonFilePath\n";
-        } else {
+        if (! file_put_contents("{$jsonFilePath}/{$fileName}", $content)) {
             echo "Falha ao salvar a resposta em $jsonFilePath\n";
+            die();
         }
     }
 
