@@ -3,6 +3,7 @@
 namespace Src;
 
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\RequestException;
 
 class FipeApi
 {
@@ -20,6 +21,7 @@ class FipeApi
 
     private Client $client;
     private array $defaultFormParams;
+    private int $sleepTimeRequest = 1;
 
     public function __construct()
     {
@@ -29,15 +31,21 @@ class FipeApi
 
     public function post(string $uri, array $formParams = []): string
     {
-        sleep(1);
-        $body = ['headers' => ['Content-Type' => 'application/json'], 'json' => $formParams];
-        $content = $this->client->request('POST', $uri, $body)->getBody()->getContents();
-        $data = $this->getDataFromJson($content);
+        sleep($this->sleepTimeRequest);
 
-        if (isset($data['erro'])) {
-            echo 'ERROR: ' . $data['erro'] . " - Wrong parameters problably\n";
-            die();
+        try {
+            $body = ['headers' => ['Content-Type' => 'application/json'], 'json' => $formParams];
+            $response = $this->client->request('POST', $uri, $body);
+        } catch (RequestException $e) {
+            if ($e->hasResponse() && $e->getResponse()->getStatusCode() === 429) {
+                $this->increaseSleepTimeRequest();
+            }
+
+            throw $e;
         }
+
+        $content = $response->getBody()->getContents();
+        $data = $this->getDataFromJson($content);
 
         return $content;
     }
@@ -50,8 +58,26 @@ class FipeApi
             echo "Error decoding JSON data: " . json_last_error_msg() . "\n";
             die();
         }
+        
+        if (isset($data['erro']) && $data['erro'] === 'Parâmetros inválidos') {
+            print_r($data);
+            print_r($uri);
+            print_r($formParams);
+            die();
+        }
+
+        if (isset($data['erro'])) {
+            throw new \Exception($data['erro']);
+            die();
+        }
 
         return $data;
+    }
+
+    private function increaseSleepTimeRequest(): void
+    {
+        $this->sleepTimeRequest += 1;
+        echo "Sleeping time increased to {$this->sleepTimeRequest} \n";
     }
 
     public function setReference(int $referenceId): void
