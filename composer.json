@@ -9,7 +9,8 @@
     "require": {
         "guzzlehttp/guzzle": "*",
         "illuminate/database": "^11.16",
-        "vlucas/phpdotenv": "^5.6"
+        "vlucas/phpdotenv": "^5.6",
+        "league/climate": "^3.8"
     },
     "autoload": {
         "psr-4": {
