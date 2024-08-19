@@ -20,13 +20,15 @@ class FipeApi
     const VEHICLE_TYPE_TRUCK = 3;
 
     private Client $client;
-    private array $defaultFormParams;
+    private array $defaultFormParams = [];
     private int $sleepTimeRequest = 1;
+    private array $proxies = [];
+    private int $proxyIndex = 0;
 
     public function __construct()
     {
-        $this->defaultFormParams = [];
         $this->client = new Client(['base_uri' => 'https://veiculos.fipe.org.br/api/veiculos/']);
+        $this->setProxiesIfExist();
     }
 
     public function post(string $uri, array $formParams = []): string
@@ -35,6 +37,7 @@ class FipeApi
 
         try {
             $body = ['headers' => ['Content-Type' => 'application/json'], 'json' => $formParams];
+            $body = $this->setProxyInBody($body);
             $response = $this->client->request('POST', $uri, $body);
         } catch (RequestException $e) {
             if ($e->hasResponse() && $e->getResponse()->getStatusCode() === 429) {
@@ -80,23 +83,29 @@ class FipeApi
         echo "Sleeping time increased to {$this->sleepTimeRequest} \n";
     }
 
-    public function setReference(int $referenceId): void
+    private function setProxiesIfExist(): void
     {
-        $this->defaultFormParams['codigoTabelaReferencia'] = $referenceId;
+        $proxiesPath = 'config/proxies.json';
+        if (file_exists($proxiesPath)) {
+            $this->proxies = json_decode(file_get_contents($proxiesPath), true);
+            $this->proxies = $this->proxies['proxies'];
+            $this->sleepTimeRequest = 0;
+        }
     }
 
-    public function setVehicleTypeMotorcycle(): void
+    private function setProxyInBody(array $body): array
     {
-        $this->defaultFormParams['codigoTipoVeiculo'] = self::VEHICLE_TYPE_MOTORCYCLE;
-    }
+        if (count($this->proxies) > 0) {
+            $proxy = $this->proxies[$this->proxyIndex];
+            $body['proxy'] = $proxy;
 
-    public function setVehicleTypeCar(): void
-    {
-        $this->defaultFormParams['codigoTipoVeiculo'] = self::VEHICLE_TYPE_CAR;
-    }
+            $this->proxyIndex++;
 
-    public function setVehicleTypeTruck(): void
-    {
-        $this->defaultFormParams['codigoTipoVeiculo'] = self::VEHICLE_TYPE_TRUCK;
+            if ($this->proxyIndex >= count($this->proxies)) {
+                $this->proxyIndex = 0;
+            }
+        }
+
+        return $body;
     }
 }
