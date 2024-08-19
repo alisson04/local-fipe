@@ -1,0 +1,11 @@
+{
+    "search.exclude": {
+        "**/responses": true
+    },
+    "files.watcherExclude": {
+        "**/responses/**": true
+    },
+    "files.exclude": {
+        "**/responses": true
+    }
+}
