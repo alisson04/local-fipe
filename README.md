@@ -11,6 +11,9 @@
 3. Montar uma base de dados com as mesmas informações do site.
 4. Disponibilizar esses dados como backup dentro do repositório.
 
+## Problemas encontrados
+1. A quantidade excessiva de arquivos pesa a IDE e o sistema do git
+
 ## Tabela com rodas usadas para buscar os dados
 * Rota principal: https://veiculos.fipe.org.br/api/veiculos;
 
