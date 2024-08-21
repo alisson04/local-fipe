@@ -1,10 +1,20 @@
 PHP_SERVICE=www
 
-#Run Commands
-update-file-responses:
+#RESPONSES COMMANDS
+#========================================
+responses-update:
 	docker compose exec $(PHP_SERVICE) php -d memory_limit=500M -f updateFileResponses.php
 
-#Docker Compose Commands
+responses-count:
+	echo "This can take a few minutes or more..."
+	docker compose exec $(PHP_SERVICE) find /var/www/responses -type f -printf '' | wc -c
+
+responses-show-in-project:
+	echo "Be sure of what you doing... this will take a few minutes or more and will slow down your GIT and Docker..."
+	docker compose exec $(PHP_SERVICE) cp -rn /var/www/responses /var/www/html/responses
+
+#DOCKER COMPOSE COMMANDS
+#========================================
 up:
 	docker compose up -d
 
@@ -24,7 +34,8 @@ build:
 bash:
 	docker compose exec $(PHP_SERVICE) bash
 
-#Composer Commands
+#COMPOSER COMMANDS
+#========================================
 composer-install:
 	docker compose exec $(PHP_SERVICE) sh -c "composer install"
 
