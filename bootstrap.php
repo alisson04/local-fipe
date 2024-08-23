@@ -1,6 +1,7 @@
 <?php
 
 require 'vendor/autoload.php';
+require 'src/helpers.php';
 
 use Dotenv\Dotenv;
 
