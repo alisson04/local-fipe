@@ -5,9 +5,13 @@ PHP_SERVICE=www
 responses-update:
 	docker compose exec $(PHP_SERVICE) php -d memory_limit=500M -f updateFileResponses.php
 
-responses-count:
+responses-count-all:
 	echo "This can take a few minutes or more..."
-	docker compose exec $(PHP_SERVICE) find /var/www/responses -type f -printf '' | wc -c
+	docker compose exec $(PHP_SERVICE) bash -c "find /var/www/responses -type f | wc -l"
+
+responses-count-brands:
+	echo "This can take a few minutes or more..."
+	docker compose exec $(PHP_SERVICE) bash -c "find /var/www/responses/consultarmarcas -type f | wc -l"
 
 responses-show-in-project:
 	echo "Be sure of what you doing... this will take a few minutes or more and will slow down your GIT and Docker..."
