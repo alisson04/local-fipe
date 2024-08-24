@@ -3,7 +3,9 @@
 namespace Src;
 
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Exception\RequestException;
+use Src\ResponseJsonFileManager;
 
 class FipeApi
 {
@@ -25,18 +27,30 @@ class FipeApi
     private array $proxies = [];
     private int $proxyIndex = 0;
 
+    private $responseJsonFileManager;
+
     public function __construct()
     {
         $this->client = new Client(['base_uri' => 'https://veiculos.fipe.org.br/api/veiculos/']);
+        $this->responseJsonFileManager = new ResponseJsonFileManager();
         $this->setProxiesIfExist();
     }
 
-    public function post(string $uri, array $formParams = []): string
+    public function post(string $uri, array $formParams = []): array
     {
-        sleep($this->sleepTimeRequest);
+        $jsonFilePath = $this->responseJsonFileManager->generateFilePath($uri, $formParams);
+
+        if ($uri !== 'ConsultarTabelaDeReferencia' && file_exists($jsonFilePath)) {
+            return $this->responseJsonFileManager->getDataFromJsonFile($jsonFilePath);
+        }
 
         try {
-            $body = ['headers' => ['Content-Type' => 'application/json'], 'json' => $formParams];
+            $body = [
+                'headers' => ['Content-Type' => 'application/json'],
+                'json' => $formParams,
+                'timeout' => 1,
+                'connect_timeout' => 1,
+            ];
             $body = $this->setProxyInBody($body);
             $response = $this->client->request('POST', $uri, $body);
         } catch (RequestException $e) {
@@ -44,13 +58,18 @@ class FipeApi
                 $this->increaseSleepTimeRequest();
             }
 
-            throw $e;
+            throw new \Exception($e->getMessage());
         }
 
-        $content = $response->getBody()->getContents();
-        $data = $this->getDataFromJson($content);
+        return $this->saveDataInJsonFile($response, $jsonFilePath);
+    }
 
-        return $content;
+    private function saveDataInJsonFile($response, $jsonFilePath): array
+    {
+        $content = $response->getBody()->getContents();
+        $this->responseJsonFileManager->saveDataInJsonFile($content, $jsonFilePath);
+
+        return $this->getDataFromJson($content);
     }
 
     private function getDataFromJson(string $json): array
