@@ -5,7 +5,9 @@ namespace Src;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Exception\RequestException;
-use Src\ResponseJsonFileManager;
+use GuzzleHttp\Exception\TransferException;
+use GuzzleHttp\Pool;
+use GuzzleHttp\Psr7\Response;
 
 class FipeApi
 {
@@ -36,6 +38,64 @@ class FipeApi
         $this->setProxiesIfExist();
     }
 
+    public function poolPost(array $requests): void
+    {
+        echo "Initializing pool... " . count($requests) . " requests" . PHP_EOL;
+        $paths = [];
+        foreach ($requests as $index => $request) {
+            $jsonFilePath = $this->responseJsonFileManager->generateFilePath($request['uri'], $request['params']);
+            if (file_exists($jsonFilePath)) {
+                unset($requests[$index]);
+            } else {
+                $paths[] = $jsonFilePath;
+            }
+        }
+
+        if (empty($requests)) {
+            dd('End');
+        }
+
+        $requestFunction = function ($requests) {
+            foreach ($requests as $request) {
+                $body = ['json' => $request['params']];
+                $body = $this->setProxyInBody($body);
+                yield function() use ($request, $body) {
+                    return $this->client->postAsync($request['uri'], $body);
+                };
+            }
+        };
+
+        $pool = new Pool($this->client, $requestFunction($requests), [
+            'concurrency' => 10,
+            'fulfilled' => function (Response $response, $index) use($paths) {
+                $jsonFilePath = $paths[$index];
+                echo "{$index} Success: {$jsonFilePath}" . PHP_EOL;
+                $this->saveDataInJsonFile($response, $jsonFilePath);
+            },
+            'rejected' => function (TransferException $reason, $index) {
+                if ($reason instanceof ConnectException) {
+                    echo $index . ' failed due to connection issue: ' . $reason->getMessage() . PHP_EOL;
+                } elseif ($reason instanceof RequestException) {
+                    echo $index . ' failed due to request issue: ' . $reason->getMessage() . PHP_EOL;
+                } else {
+                    echo $index . ' failed due to an unexpected issue: ' . $reason->getMessage() . PHP_EOL;
+                }
+
+                if ($reason->getCode() == 502) {
+                    // Tente novamente após um breve intervalo
+                    sleep(2);
+                    echo $index . ' retrying due to 502 error' . PHP_EOL;
+                    // Reenviar a requisição ou adicionar lógica de retry
+                }
+            },
+        ]);
+
+        $promise = $pool->promise();
+        $promise->wait();
+
+        $this->poolPost($requests);
+    }
+
     public function post(string $uri, array $formParams = []): array
     {
         $jsonFilePath = $this->responseJsonFileManager->generateFilePath($uri, $formParams);
@@ -45,12 +105,7 @@ class FipeApi
         }
 
         try {
-            $body = [
-                'headers' => ['Content-Type' => 'application/json'],
-                'json' => $formParams,
-                'timeout' => 1,
-                'connect_timeout' => 1,
-            ];
+            $body = ['json' => $formParams];
             $body = $this->setProxyInBody($body);
             $response = $this->client->request('POST', $uri, $body);
         } catch (RequestException $e) {
@@ -67,12 +122,13 @@ class FipeApi
     private function saveDataInJsonFile($response, $jsonFilePath): array
     {
         $content = $response->getBody()->getContents();
+        $data = $this->checkErrosAndGetDataFromJson($content);
         $this->responseJsonFileManager->saveDataInJsonFile($content, $jsonFilePath);
 
-        return $this->getDataFromJson($content);
+        return $data;
     }
 
-    private function getDataFromJson(string $json): array
+    private function checkErrosAndGetDataFromJson(string $json): array
     {
         $data = json_decode($json, true);
 
@@ -83,8 +139,6 @@ class FipeApi
         
         if (isset($data['erro']) && $data['erro'] === 'Parâmetros inválidos') {
             print_r($data);
-            print_r($uri);
-            print_r($formParams);
             die();
         }
 
