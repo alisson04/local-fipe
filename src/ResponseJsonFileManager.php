@@ -21,7 +21,7 @@ class ResponseJsonFileManager
 
     public function generateFilePath(string $route, array $formParams = []): string
     {
-        $filePath = "responses/" . strtolower($route) . "/";
+        $filePath = "../responses/" . strtolower($route) . "/";
 
         foreach ($formParams as $key => $value) {
             $filePath .= strtolower("{$key}{$value}/");
