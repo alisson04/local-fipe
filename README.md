@@ -22,36 +22,43 @@
         <td>Passo</td>
         <td>Rota</td>
         <td>Tipo</td>
+        <td>Status dos responses</td>
     </tr>
     <tr>
         <td>1</td>
         <td>/ConsultarTabelaDeReferencia</td>
         <td>POST</td>
+        <td>0/283</td>
     </tr>
     <tr>
         <td>2</td>
         <td>/ConsultarMarcas</td>
         <td>POST</td>
+        <td>852/852</td>
     </tr>
     <tr>
         <td>3</td>
         <td>/ConsultarModelos</td>
         <td>POST</td>
+        <td>47.458/47.458</td>
     </tr>
     </tr>
         <td>4</td>
         <td>/ConsultarAnoModelo</td>
         <td>POST</td>
+        <td></td>
     </tr>
     </tr>
         <td>5</td>
         <td>/ConsultarModelosAtravesDoAno</td>
         <td>POST</td>
+        <td></td>
     </tr>
     </tr>
         <td>6</td>
         <td>/ConsultarValorComTodosParametros</td>
         <td>POST</td>
+        <td></td>
     </tr>
 </table>
 
