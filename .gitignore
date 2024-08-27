@@ -1,3 +1,4 @@
 /vendor/
 /docker/
 /config/proxies.json
+.env
