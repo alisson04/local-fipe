@@ -52,7 +52,7 @@ class FipeApi
         }
 
         if (empty($requests)) {
-            dd('End');
+            return;
         }
 
         $requestFunction = function ($requests) {
@@ -65,14 +65,19 @@ class FipeApi
             }
         };
 
+        $requestsSuccess = 0;
+        $requestsFailed = 0;
         $pool = new Pool($this->client, $requestFunction($requests), [
-            'concurrency' => 10,
-            'fulfilled' => function (Response $response, $index) use($paths) {
+            'concurrency' => 30,
+            'fulfilled' => function (Response $response, $index) use($paths, &$requestsSuccess) {
+                $requestsSuccess++;
                 $jsonFilePath = $paths[$index];
-                echo "{$index} Success: {$jsonFilePath}" . PHP_EOL;
+                echo "{$index} S|";
                 $this->saveDataInJsonFile($response, $jsonFilePath);
             },
-            'rejected' => function (TransferException $reason, $index) {
+            'rejected' => function (TransferException $reason, $index) use(&$requestsFailed) {
+                echo "{$index} E|";
+                $requestsFailed++;
                 if ($reason instanceof ConnectException) {
                     echo $index . ' failed due to connection issue: ' . $reason->getMessage() . PHP_EOL;
                 } elseif ($reason instanceof RequestException) {
@@ -81,11 +86,10 @@ class FipeApi
                     echo $index . ' failed due to an unexpected issue: ' . $reason->getMessage() . PHP_EOL;
                 }
 
-                if ($reason->getCode() == 502) {
-                    // Tente novamente após um breve intervalo
-                    sleep(2);
-                    echo $index . ' retrying due to 502 error' . PHP_EOL;
-                    // Reenviar a requisição ou adicionar lógica de retry
+                if ($reason->getCode() == 502 || $reason->getCode() == 429) {
+                    sleep(5);
+                    echo "=================================================" . PHP_EOL;
+                    echo $index . ' retrying due to 502|429 error' . PHP_EOL;
                 }
             },
         ]);
@@ -93,6 +97,9 @@ class FipeApi
         $promise = $pool->promise();
         $promise->wait();
 
+        echo "=================================================" . PHP_EOL;
+        echo "TOTAL: " . count($requests) . " | SUCCESS: {$requestsSuccess} | FAILED: {$requestsFailed}" . PHP_EOL;
+        echo "=================================================" . PHP_EOL;
         $this->poolPost($requests);
     }
 
