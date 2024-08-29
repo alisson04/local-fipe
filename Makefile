@@ -13,7 +13,7 @@ responses-count-brands:
 	echo "This can take a few minutes or more..."
 	docker compose exec $(PHP_SERVICE) bash -c "find /var/www/responses/consultarmarcas -type f | wc -l"
 
-responses-count-yaer-model:
+responses-count-year-model:
 	echo "This can take a few minutes or more..."
 	docker compose exec $(PHP_SERVICE) bash -c "find /var/www/responses/consultaranomodelo -type f | wc -l"
 
