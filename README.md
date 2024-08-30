@@ -2,17 +2,32 @@
 
 ## Problemas que esse projeto visa resolver
 * O site https://veiculos.fipe.org.br ocasionalmente fica fora do ar!
-* Não existe uma API pública!
-* Não há possibilidade de realizar consultas com filtros específicos no site!
+* Não existe uma API pública para acessar os dados da tabela Fipe!
 
 ## Solução proposta
-1. Analisar as entidades e propriedades usadas no site para estruturação da base de dados.
-2. Montar um ambiente Docker para acesso aos dados.
-3. Montar uma base de dados com as mesmas informações do site.
-4. Disponibilizar esses dados como backup dentro do repositório.
 
-## Problemas encontrados
-1. A quantidade excessiva de arquivos pesa a IDE e o sistema do git
+<table>
+    <tr>
+        <td>Passo</td>
+        <td>Descrição</td>
+        <td>Status</td>
+    </tr>
+    <tr>
+        <td>1</td>
+        <td>Baixar todos os arquivos de resposta usados no site original da Fipe</td>
+        <td>IN PROCESS</td>
+    </tr>
+    <tr>
+        <td>2</td>
+        <td>Disponibilizar os arquivos em um repositório publico para serem acessados via API</td>
+        <td>IN PROCESS</td>
+    </tr>
+    <tr>
+        <td>2</td>
+        <td>Disponibilizar uma biblioteca para ser usada como API no acesso aos arquivos</td>
+        <td>IN PROCESS</td>
+    </tr>
+</table>
 
 ## Tabela com rodas usadas para buscar os dados
 * Rota principal: https://veiculos.fipe.org.br/api/veiculos;
@@ -40,13 +55,13 @@
         <td>3</td>
         <td>/ConsultarModelos</td>
         <td>POST</td>
-        <td>47.458/47.458</td>
+        <td>142.374/142.374</td>
     </tr>
     </tr>
         <td>4</td>
         <td>/ConsultarAnoModelo</td>
         <td>POST</td>
-        <td></td>
+        <td>1.775.114</td>
     </tr>
     </tr>
         <td>5</td>
@@ -58,7 +73,7 @@
         <td>6</td>
         <td>/ConsultarValorComTodosParametros</td>
         <td>POST</td>
-        <td></td>
+        <td>1.456.519</td>
     </tr>
 </table>
 
