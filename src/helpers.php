@@ -56,8 +56,7 @@ if (!function_exists('getDataFromJson')) {
         $data = json_decode($json, true);
 
         if (json_last_error() !== JSON_ERROR_NONE) {
-            echo "Error decoding JSON data: " . json_last_error_msg() . "\n";
-            die();
+            throw new \Exception('Error decoding JSON data: ' . json_last_error_msg());
         }
 
         return $data;
