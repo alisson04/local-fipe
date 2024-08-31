@@ -20,12 +20,12 @@
     <tr>
         <td>2</td>
         <td>Disponibilizar os arquivos em um repositório publico para serem acessados via API</td>
-        <td>IN PROCESS</td>
+        <td>WAITING</td>
     </tr>
     <tr>
         <td>2</td>
         <td>Disponibilizar uma biblioteca para ser usada como API no acesso aos arquivos</td>
-        <td>IN PROCESS</td>
+        <td>WAITING</td>
     </tr>
 </table>
 
@@ -73,7 +73,7 @@
         <td>6</td>
         <td>/ConsultarValorComTodosParametros</td>
         <td>POST</td>
-        <td>1.456.519</td>
+        <td>4.000.519</td>
     </tr>
 </table>
 
