@@ -44,7 +44,7 @@ class FipeApi
         $paths = [];
         foreach ($requests as $index => $request) {
             $jsonFilePath = $this->responseJsonFileManager->generateFilePath($request['uri'], $request['params']);
-            if (file_exists($jsonFilePath)) {
+            if (file_exists($jsonFilePath) && filesize($jsonFilePath) > 0) {
                 unset($requests[$index]);
             } else {
                 $paths[] = $jsonFilePath;
@@ -68,7 +68,7 @@ class FipeApi
         $requestsSuccess = 0;
         $requestsFailed = 0;
         $pool = new Pool($this->client, $requestFunction($requests), [
-            'concurrency' => 30,
+            'concurrency' => 100,
             'fulfilled' => function (Response $response, $index) use($paths, &$requestsSuccess) {
                 $requestsSuccess++;
                 $jsonFilePath = $paths[$index];
@@ -107,7 +107,7 @@ class FipeApi
     {
         $jsonFilePath = $this->responseJsonFileManager->generateFilePath($uri, $formParams);
 
-        if ($uri !== 'ConsultarTabelaDeReferencia' && file_exists($jsonFilePath)) {
+        if ($uri !== 'ConsultarTabelaDeReferencia' && file_exists($jsonFilePath) && filesize($jsonFilePath) > 0) {
             return $this->responseJsonFileManager->getDataFromJsonFile($jsonFilePath);
         }
 
