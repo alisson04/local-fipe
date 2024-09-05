@@ -3,7 +3,6 @@
 namespace Src;
 
 use GuzzleHttp\Client;
-use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Exception\TransferException;
 use GuzzleHttp\Pool;
@@ -24,7 +23,6 @@ class FipeApi
     const VEHICLE_TYPE_TRUCK = 3;
 
     private Client $client;
-    private array $defaultFormParams = [];
     private int $sleepTimeRequest = 1;
     private array $proxies = [];
     private int $proxyIndex = 0;
@@ -38,12 +36,51 @@ class FipeApi
         $this->setProxiesIfExist();
     }
 
+    private function gerenateFileResponsePath(string $uri, array $formParams): string
+    {
+        $mapUris = [
+            'ConsultarTabelaDeReferencia' => 'references',
+            'ConsultarMarcas' => 'brands',
+            'ConsultarModelos' => 'models',
+            'ConsultarAnoModelo' => 'year-model',
+            'ConsultarValorComTodosParametros' => 'prices',
+        ];
+
+        if (! isset($mapUris[$uri])) {
+            throw new \Exception("Uri not found: {$uri}");
+        }
+
+        $mapParams = [
+            'codigoTabelaReferencia' => 'reference',
+            'codigoTipoVeiculo' => 'vehicle-type',
+        ];
+
+        foreach ($formParams as $keyParam => $value) {
+            if (! isset($mapParams[$keyParam])) {
+                throw new \Exception("Param not found: {$keyParam}");
+            }
+
+            if (! $mapParams[$keyParam]) {
+                unset($formParams[$keyParam]);
+                continue;
+            }
+
+            $keyMapped = $mapParams[$keyParam];
+            $formParams[$keyMapped] = $value;
+        }
+
+        return $this->responseJsonFileManager->generateFilePath($mapUris[$uri], $formParams);
+    }
+
     public function poolPost(array $requests): void
     {
-        echo "Initializing pool... " . count($requests) . " requests" . PHP_EOL;
         $paths = [];
         foreach ($requests as $index => $request) {
-            $jsonFilePath = $this->responseJsonFileManager->generateFilePath($request['uri'], $request['params']);
+            if ($request['uri'] === 'ConsultarTabelaDeReferencia') {
+                throw new \Exception("Pool should not be used for uri: {$uri}");
+            }
+
+            $jsonFilePath = $this->gerenateFileResponsePath($request['uri'], $request['params']);
             if (file_exists($jsonFilePath) && filesize($jsonFilePath) > 0) {
                 unset($requests[$index]);
             } else {
@@ -72,24 +109,13 @@ class FipeApi
             'fulfilled' => function (Response $response, $index) use($paths, &$requestsSuccess) {
                 $requestsSuccess++;
                 $jsonFilePath = $paths[$index];
-                echo "{$index} S|";
                 $this->saveDataInJsonFile($response, $jsonFilePath);
             },
             'rejected' => function (TransferException $reason, $index) use(&$requestsFailed) {
-                echo "{$index} E|";
                 $requestsFailed++;
-                if ($reason instanceof ConnectException) {
-                    echo $index . ' failed due to connection issue: ' . $reason->getMessage() . PHP_EOL;
-                } elseif ($reason instanceof RequestException) {
-                    echo $index . ' failed due to request issue: ' . $reason->getMessage() . PHP_EOL;
-                } else {
-                    echo $index . ' failed due to an unexpected issue: ' . $reason->getMessage() . PHP_EOL;
-                }
 
                 if ($reason->getCode() == 502 || $reason->getCode() == 429) {
                     sleep(5);
-                    echo "=================================================" . PHP_EOL;
-                    echo $index . ' retrying due to 502|429 error' . PHP_EOL;
                 }
             },
         ]);
@@ -97,15 +123,12 @@ class FipeApi
         $promise = $pool->promise();
         $promise->wait();
 
-        echo "=================================================" . PHP_EOL;
-        echo "TOTAL: " . count($requests) . " | SUCCESS: {$requestsSuccess} | FAILED: {$requestsFailed}" . PHP_EOL;
-        echo "=================================================" . PHP_EOL;
         $this->poolPost($requests);
     }
 
     public function post(string $uri, array $formParams = []): array
     {
-        $jsonFilePath = $this->responseJsonFileManager->generateFilePath($uri, $formParams);
+        $jsonFilePath = $this->gerenateFileResponsePath($uri, $formParams);
 
         if ($uri !== 'ConsultarTabelaDeReferencia' && file_exists($jsonFilePath) && filesize($jsonFilePath) > 0) {
             return $this->responseJsonFileManager->getDataFromJsonFile($jsonFilePath);
@@ -160,7 +183,6 @@ class FipeApi
     private function increaseSleepTimeRequest(): void
     {
         $this->sleepTimeRequest += 1;
-        echo "Sleeping time increased to {$this->sleepTimeRequest} \n";
     }
 
     private function setProxiesIfExist(): void
