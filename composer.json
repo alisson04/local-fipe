@@ -17,5 +17,13 @@
             "Database\\": "database/",
             "Src\\": "src/"
         }
+    },
+    "require-dev": {
+        "pestphp/pest": "^2.35"
+    },
+    "config": {
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        }
     }
 }

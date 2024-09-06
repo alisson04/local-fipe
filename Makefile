@@ -58,3 +58,8 @@ composer-require:
 
 composer-show:
 	docker compose exec $(PHP_SERVICE) composer show $(package)
+
+#COMPOSER COMMANDS
+#========================================
+test:
+	docker compose exec $(PHP_SERVICE) ./vendor/bin/pest
